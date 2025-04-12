@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">WifiMonitor</string>
+    <string name="title_activity_main">WifiMonitor</string>
+    <string name="package_name">com.rayercodes.wifimonitor</string>
+    <string name="custom_url_scheme">com.rayercodes.wifimonitor</string>
+</resources>

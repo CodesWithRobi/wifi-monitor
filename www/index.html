@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Wi-Fi Signal Monitor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>📡 Real-Time Wi-Fi Signal</h1>
+    <p id="ssid" class="text">SSID: --</p>
+    <div class="bar">
+      <div class="fill" id="fill"></div>
+    </div>
+    <p id="signal" class="text">Signal: -- dBm</p>
+    <p id="timestamp" class="text">Time: --</p>
+  </div>
+  <script>
+    // Determine if we're running in Capacitor (Android/iOS) or web browser
+    document.addEventListener('deviceready', onDeviceReady, false);
+
+    // If not in Capacitor, we'll default to WebSocket mode
+    if (!window.Capacitor) {
+      connectWebSocket();
+    }
+
+    function onDeviceReady() {
+      console.log("Device is ready");
+      // Start polling WiFi data when device is ready
+      updateWiFiData();
+      // Update every second
+      setInterval(updateWiFiData, 1000);
+    }
+
+    async function updateWiFiData() {
+      try {
+        const {WiFi} = Capacitor.Plugins;
+        const wifiData = await WiFi.getSignalStrength();
+
+        // Update UI with data from plugin
+        document.getElementById("ssid").innerText = `SSID: ${wifiData.ssid.replace(/"/g, '')}`;
+        document.getElementById("signal").innerText = `Signal: ${wifiData.rssi} dBm`;
+        document.getElementById("timestamp").innerText = `Time: ${new Date().toLocaleTimeString()}`;
+
+        // Update signal bar
+        const percent = Math.max(0, Math.min(100, 2 * (wifiData.rssi + 100)));
+        const fill = document.getElementById("fill");
+        fill.style.width = percent + "%";
+
+        if (percent > 70) {
+          fill.style.backgroundColor = "var(--bar-fill-good)";
+        } else if (percent > 50) {
+          fill.style.backgroundColor = "var(--bar-fill-mid)";
+        } else {
+          fill.style.backgroundColor = "var(--bar-fill-bad)";
+        }
+      } catch (error) {
+        console.error("Error getting WiFi data:", error);
+      }
+    }
+
+    // Original WebSocket code for when running in browser
+    function connectWebSocket() {
+      const ws = new WebSocket(`ws://${location.host}`);
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        document.getElementById("ssid").innerText = `SSID: ${data.ssid}`;
+        document.getElementById("signal").innerText = `Signal: ${data.signal} dBm`;
+        document.getElementById("timestamp").innerText = `Time: ${data.timestamp}`;
+        const percent = Math.max(0, Math.min(100, 100 + data.signal));
+        const fill = document.getElementById("fill");
+        fill.style.width = percent + "%";
+        if (percent > 70) {
+          fill.style.backgroundColor = "var(--bar-fill-good)";
+        } else if (percent > 50) {
+          fill.style.backgroundColor = "var(--bar-fill-mid)";
+        } else {
+          fill.style.backgroundColor = "var(--bar-fill-bad)";
+        }
+      };
+    }
+  </script>
+  <!-- Import Capacitor -->
+  <script src="capacitor.js"></script>
+</body>
+
+</html>
