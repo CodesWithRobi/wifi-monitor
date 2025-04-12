@@ -1,44 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
-  <title>Wi-Fi Monitor</title>
-  <style>
-    body {
-      background: #0e0e10;
-      color: #00ffc3;
-      font-family: monospace;
-      text-align: center;
-      padding-top: 50px;
-    }
-
-    .bar {
-      width: 300px;
-      height: 30px;
-      margin: 20px auto;
-      background: #333;
-      border: 2px solid #00ffc3;
-      position: relative;
-    }
-
-    .fill {
-      height: 100%;
-      background: limegreen;
-      width: 0%;
-      transition: width 0.4s ease;
-    }
-  </style>
+  <title>Wi-Fi Signal Monitor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <h1>📡 Real-Time Wi-Fi Signal</h1>
-  <p id="ssid">SSID: --</p>
-  <div class="bar">
-    <div class="fill" id="fill"></div>
+  <div class="container">
+    <h1>📡 Real-Time Wi-Fi Signal</h1>
+    <p id="ssid" class="text">SSID: --</p>
+
+    <div class="bar">
+      <div class="fill" id="fill"></div>
+    </div>
+
+    <p id="signal" class="text">Signal: -- dBm</p>
+    <p id="timestamp" class="text">Time: --</p>
   </div>
-  <p id="signal">Signal: -- dBm</p>
-  <p id="timestamp">Time: --</p>
 
   <script>
     const ws = new WebSocket(`ws://${location.host}`);
@@ -52,7 +33,14 @@
       const percent = Math.max(0, Math.min(100, 100 + data.signal));
       const fill = document.getElementById("fill");
       fill.style.width = percent + "%";
-      fill.style.background = percent > 70 ? "limegreen" : (percent > 50 ? "gold" : "red");
+
+      if (percent > 70) {
+        fill.style.backgroundColor = "var(--bar-fill-good)";
+      } else if (percent > 50) {
+        fill.style.backgroundColor = "var(--bar-fill-mid)";
+      } else {
+        fill.style.backgroundColor = "var(--bar-fill-bad)";
+      }
     };
   </script>
 </body>

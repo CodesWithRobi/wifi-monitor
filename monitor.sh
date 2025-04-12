@@ -1,7 +1,7 @@
 #!/bin/bash
 
 INTERFACE="wlp0s20f3"
-INTERVAL=1
+INTERVAL=0.1
 
 while true; do
     RAW=$(iw dev "$INTERFACE" link)
